@@ -14,9 +14,11 @@
       stroke: #a5967e;
     }
 
-
-
-
+    .arcs path {
+    pointer-events: none;
+    /* opacity: .6;*/
+    fill: none;
+    }
 
   </style>
 
@@ -25,6 +27,8 @@
 <body>
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://d3js.org/topojson.v0.min.js"></script>
+    <script src="country_refugee.js"></script>
+
     <script>
         var width = 1300,
             height = 650;
@@ -55,9 +59,81 @@
                 .data([topojson.object(world, world.objects.countries)])
                 .enter().append("path")
                 .attr("d", path);
+
+                    // draw the curves between each country and Germany
+        var arcs = svg.append("g")
+            .attr("class", "arcs");
+
+        var line = arcs.selectAll("path")
+            .data(arcdata)
+            .enter()
+            .append("path")
+            .style("opacity", 1)
+            .attr("d", function(d) {
+                return lngLatToArc(d, 'sourceLocation', 'targetLocation', 15);
+            })
+            .style("stroke", function(d, i) {
+                return "url(#line-gradient" + i + ")";
+            });
+
+        var gradient = svg.selectAll("linearGradient")
+            .data(arcdata)
+            .enter()
+            .append("linearGradient")
+            .attr("id", function(d, i) {
+                return "line-gradient" + i;
+            })
+            .attr("gradientUnits", "userSpaceOnUse")
+            .attr("x1", projection(52.5167))
+            .attr("y1", projection(13.3833))
+            .attr("x2", function(d, i) {
+                return projection(arcdata[i].sourceLocation[0]);
+            })
+            .attr("y2", function(d, i) {
+                return projection(arcdata[i].sourceLocation[1]);
+            });
+
+        gradient.append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "lightgrey");
+
+        gradient.append("stop")
+            .attr("offset", function(d, i) {
+                return arcdata[i].gradient[0].offset;
+            })
+            .attr("stop-color", function(d, i) {
+                return arcdata[i].gradient[0].color;
+            });
           
         });
 
+
+
+    function lngLatToArc(d, sourceName, targetName, bend) {
+        bend = .7;
+
+        var sourceLngLat = d[sourceName],
+            targetLngLat = d[targetName];
+        if (targetLngLat && sourceLngLat) {
+            var sourceXY = projection(sourceLngLat),
+                targetXY = projection(targetLngLat);
+            var sourceX = sourceXY[0],
+                sourceY = sourceXY[1];
+            var targetX = targetXY[0],
+                targetY = targetXY[1];
+            var dx = (targetX - sourceX),
+                dy = targetY - sourceY,
+                dr = Math.sqrt(dx * dx + dy * dy) * bend;
+
+            // var west_of_source = (sourceY - targetY)/2 < 0;
+            // if (west_of_source) 
+            return "M" + targetX + "," + targetY + "A" + dr + "," + dr + " 0 0,1 " + sourceX + "," + sourceY;
+            return "M" + sourceX + "," + sourceY + "A" + dr + "," + dr + " 0 0,1 " + targetX + "," + targetY;
+
+        }
+        // else {
+        // }
+    }
 
     </script>
 </body>
