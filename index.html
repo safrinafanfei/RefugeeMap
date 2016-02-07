@@ -20,6 +20,7 @@
     fill: none;
     }
 
+
   </style>
 
 </head>
@@ -45,7 +46,6 @@
         var path = d3.geo.path()
             .projection(projection);
 
-
         d3.json("https://gist.githubusercontent.com/abenrob/787723ca91772591b47e/raw/8a7f176072d508218e120773943b595c998991be/world-50m.json", function(error, world) {
             svg.append("g")
                 .attr("class", "land")
@@ -60,7 +60,7 @@
                 .enter().append("path")
                 .attr("d", path);
 
-                    // draw the curves between each country and Germany
+// draw the curves between each country and Germany
         var arcs = svg.append("g")
             .attr("class", "arcs");
 
@@ -68,7 +68,7 @@
             .data(arcdata)
             .enter()
             .append("path")
-            .style("opacity", 1)
+            .style("opacity", 0.5)
             .attr("d", function(d) {
                 return lngLatToArc(d, 'sourceLocation', 'targetLocation', 15);
             })
@@ -104,11 +104,81 @@
             .attr("stop-color", function(d, i) {
                 return arcdata[i].gradient[0].color;
             });
-          
+
+         svg.selectAll(".point")
+            .data(arcdata)
+            .enter()
+            .append("circle")
+            .attr("class", "cityCircle")
+            .attr("r", 3)
+            .style("fill", "lightgrey")
+            .style("stroke-width", 1)
+            .style("opacity",0.8)
+            .attr("cursor", "default")
+            .attr("transform", function(d, i) {
+                return "translate(" + projection([arcdata[i].sourceLocation[0], arcdata[i].sourceLocation[1]]) + ")";
+            });
+// MOVE THE DOTS   
+        function moveDots() {
+            for (var i = 0; i < 28; i++) {
+                k = svg.append("path")
+                    .style("stroke", "none")
+                    .style("fill", "none")
+                    .attr("class", "ghostpath")
+                    .attr("d", function(d) {
+                        return lngLatToArc(arcdata[i], 'sourceLocation', 'targetLocation', 1);
+                    });
+
+                l = svg.selectAll(".point")
+                    .data(arcdata[i].byTime)
+                    .enter()
+                    .append("circle")
+                    .attr("class", "movingpts")
+                    .attr("r", 3)
+                    .style("fill", "lightgrey")
+                    .style("opacity", 0);
+
+
+                transformLine = translateAlong(k.node());
+
+                l.transition()
+                    .delay(function(d, i) {
+                        return i * 300;
+                    })
+                    .duration(4000)
+                    .style("opacity", 1)
+                    .attrTween("transform", transformLine)
+                    .each("end", function() {
+                        d3.select(this)
+                            .remove();
+                        d3.selectAll(".ghostpath")
+                            .remove()
+                    })
+            }
+        }
+
+        moveDots();
+
+
+        function type(d) {
+            d.total = +d.total;
+            return d;
+        }          
         });
 
+   
+        // Returns an attrTween for translating along the specified path element.
+        function translateAlong(path) {
+            var l = path.getTotalLength();
+            return function(d, i, a) {
+                return function(t) {
+                    var p = path.getPointAtLength((1 - t) * l);
+                    return "translate(" + p.x + "," + p.y + ")";
+                };
+            };
+        }
 
-
+   
     function lngLatToArc(d, sourceName, targetName, bend) {
         bend = .7;
 
@@ -124,15 +194,10 @@
             var dx = (targetX - sourceX),
                 dy = targetY - sourceY,
                 dr = Math.sqrt(dx * dx + dy * dy) * bend;
-
-            // var west_of_source = (sourceY - targetY)/2 < 0;
-            // if (west_of_source) 
             return "M" + targetX + "," + targetY + "A" + dr + "," + dr + " 0 0,1 " + sourceX + "," + sourceY;
             return "M" + sourceX + "," + sourceY + "A" + dr + "," + dr + " 0 0,1 " + targetX + "," + targetY;
 
         }
-        // else {
-        // }
     }
 
     </script>
