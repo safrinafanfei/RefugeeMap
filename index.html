@@ -20,19 +20,91 @@
     fill: none;
     }
 
+    .tooltip{ 
+            background-color:rgba(240,240,240,0.5);
+            margin: 10px;
+            height: 50px;
+            width: 90px;
+            padding-top: 10px;
+            -webkit-border-radius:10px;
+            -moz-border-radius:10px;
+            border-radius:10px;
+            font-size: 0.7em;
+            text-align:center;
+        }
+
+        .tooltip span{
+            font-size:0.5em;
+        }
+
+        h2{
+            font-family: 'Oxygen', sans-serif;
+            font-size: 36px;
+            text-align: center;
+            color: #a5967e;
+        }
+
+        #source a:link{
+            color:lightgrey; 
+            position: relative;
+            background-color:transparent; 
+            text-decoration:none;
+            font-size: 12px;
+        }
+
+        #source a:visited{
+            color:lightgrey; 
+            position:relative;
+            background-color:transparent; 
+            text-decoration:none;
+        }
+
+        #source a:hover{
+            color:#a5967e; 
+            background-color:transparent; 
+            text-decoration:underline
+        }
+        #source a:active{
+            color:#a5967e; background-color:transparent; text-decoration:underline
+        }
+
+        svg{
+            position: relative;
+            margin-top:-50px;
+            margin-bottom: -50px;
+        }
+
+        p{
+            color:#a5967e; 
+            font-size: 9px;
+        }
+
+        .germany{
+            color:#a5967e; 
+            font-size: 15px;
+            font-weight: 200px;
+        }
+
+
 
   </style>
 
 </head>
 
 <body>
+        <h2> Where Refugees in German Come from? </h2>
+        
+
     <script src="http://d3js.org/d3.v3.min.js"></script>
     <script src="http://d3js.org/topojson.v0.min.js"></script>
     <script src="country_refugee.js"></script>
+    <script src="js/d3tooltip.js"></script>
+    <link href='https://fonts.googleapis.com/css?family=Oxygen:400,300' rel='stylesheet' type='text/css'>
+
 
     <script>
-        var width = 1300,
-            height = 650;
+        var width = 1200,
+            height = 600;
 
         var svg = d3.select("body").append("svg")
             .attr("width", width)
@@ -76,6 +148,7 @@
                 return "url(#line-gradient" + i + ")";
             });
 
+
         var gradient = svg.selectAll("linearGradient")
             .data(arcdata)
             .enter()
@@ -91,7 +164,8 @@
             })
             .attr("y2", function(d, i) {
                 return projection(arcdata[i].sourceLocation[1]);
-            });
+            })
+            ;
 
         gradient.append("stop")
             .attr("offset", "0%")
@@ -105,19 +179,61 @@
                 return arcdata[i].gradient[0].color;
             });
 
-         svg.selectAll(".point")
+
+// add points to origin countries 
+        svg.selectAll("point")
             .data(arcdata)
             .enter()
             .append("circle")
             .attr("class", "cityCircle")
-            .attr("r", 3)
+            .attr("r", 4)
             .style("fill", "lightgrey")
             .style("stroke-width", 1)
             .style("opacity",0.8)
             .attr("cursor", "default")
             .attr("transform", function(d, i) {
                 return "translate(" + projection([arcdata[i].sourceLocation[0], arcdata[i].sourceLocation[1]]) + ")";
-            });
+            })
+            .call(d3.helper.tooltip(
+                            function(d, i){
+                              return "<b>"+d.country +"</b>"+"<br/>"+"<span>Number of Refugees: </span>"+ "<b>"+d.total;
+                            }
+                        ))
+            .on("mouseenter", function(d) {
+              d3.select(this).attr("r", 10).style("fill", "#a5967e");
+            })                  
+            .on("mouseleave", function(d) {
+              d3.select(this).attr("r", 4).style("fill", "#fff8ee");
+            })
+
+//draw Germany point
+        svg.append("text")
+            .attr("class", "germany")
+            .attr("cursor", "default")
+            .text("Germany")
+            .style("fill", "lightgrey")
+            .style("font-size", 11)
+            .attr("text-anchor", "middle")
+            .attr("transform", "translate(" + projection([13.3833,62.5167]) + ")");
+
+        svg.append("circle")
+            .attr("class", "germany")
+            .attr("cursor", "default")
+            .style("fill", "#a5967e")
+            .style("opacity",0.8)
+            .attr("r", 12)
+            .attr("transform", "translate(" + projection([13.3833,52.5167]) + ")");
+
+        svg.append("svg:image")
+            .attr("class","icon")
+            .attr('width', 80)
+            .attr('height', 80)
+            .attr("xlink:href","resource/icon.svg")
+            .attr("transform", "translate(" + projection([-1,74.5167]) + ")")
+            .style("fill", "#a5967e");
+
+
+
 // MOVE THE DOTS   
         function moveDots() {
             for (var i = 0; i < 28; i++) {
@@ -201,5 +317,11 @@
     }
 
     </script>
+    <div id="source">
+        <span>
+            <a href="http://popstats.unhcr.org/en/time_series"> Source:Extracted from the UNHCR Population Statistics Reference Database</a>
+        </span>
+        <p>(Note: In the 2014 data, figures between 1 and 4 have been replaced with an asterisk (*). These represent situations where the figures are being kept confidential to protect the anonymity of individuals. Such figures are not included in any totals.)</p>
+    </div>
 </body>
 </html>
