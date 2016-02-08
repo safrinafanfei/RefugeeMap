@@ -92,7 +92,7 @@
 </head>
 
 <body>
-        <h2> Where Refugees in German Come from? </h2>
+        <h2> Where Refugees in Germany Come from? </h2>
         
 
     <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -157,15 +157,7 @@
                 return "line-gradient" + i;
             })
             .attr("gradientUnits", "userSpaceOnUse")
-            .attr("x1", projection(52.5167))
-            .attr("y1", projection(13.3833))
-            .attr("x2", function(d, i) {
-                return projection(arcdata[i].sourceLocation[0]);
-            })
-            .attr("y2", function(d, i) {
-                return projection(arcdata[i].sourceLocation[1]);
-            })
-            ;
+            .attr("color","lightgrey");
 
         gradient.append("stop")
             .attr("offset", "0%")
@@ -175,9 +167,7 @@
             .attr("offset", function(d, i) {
                 return arcdata[i].gradient[0].offset;
             })
-            .attr("stop-color", function(d, i) {
-                return arcdata[i].gradient[0].color;
-            });
+            .attr("stop-color", "lightgrey");
 
 
 // add points to origin countries 
@@ -214,7 +204,7 @@
             .style("fill", "lightgrey")
             .style("font-size", 11)
             .attr("text-anchor", "middle")
-            .attr("transform", "translate(" + projection([13.3833,62.5167]) + ")");
+            .attr("transform", "translate(" + projection([4.3833,62.5167]) + ")");
 
         svg.append("circle")
             .attr("class", "germany")
