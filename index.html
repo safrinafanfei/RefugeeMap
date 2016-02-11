@@ -74,7 +74,7 @@ h2{
 
 svg{
     position: relative;
-    margin-top:20px;
+    margin-top:0px;
     left:50px;
 }
 
@@ -130,7 +130,10 @@ p{
 pre, code { background-color: rgba(0, 0, 0, 0.04); padding: 0.2em 0; margin: 0; font-size: 85%; border-radius: 3px; font-family: Consolas, Menlo, monospace; }
 pre { white-space: pre-wrap; }
 
-h2 { margin-top: 1em; padding-top: 1em; border-top: 2px solid #eee; }
+
+h3 { font-family: san-serif; font-size:18px;color:lightgrey;
+position: relative;left:900px;}
+
 
 li { margin-bottom: 0.5em; }
 
@@ -194,6 +197,7 @@ td { border-bottom: 1px solid #ccc; }
 
 <body>
     <h2> Where Refugees in Germany Come from? </h2>
+    <h3>By Fan Fei</h3>
     <div id="container"> 
         <div class="row">
             <div class="col-sm-8 col-xs-12" id="map"></div>
@@ -493,6 +497,9 @@ svg.selectAll("point")
 .enter()
 .append("circle")
 .attr("class", "cityCircle")
+.attr('id', function(d, i) {
+    return "circle_" + d.country.toLowerCase();
+})
 .attr("r", 4)
 .style("fill", "lightgrey")
 .style("stroke-width", 1)
@@ -622,10 +629,28 @@ function type(d) {
             }
         }
 
-$(document).ready(function() {
         // apply filterTable to all tables on this page
-        $('table').filterTable({filterExpression: 'filterTableFindAll'});
-    });
+        $('table').filterTable({
+            filterExpression: 'filterTableFindAll',
+            callback: function(term, table) {
+
+                // zoom in the country/city icon here.
+                var countryNameLowerCase = term.toLowerCase();
+                var circleId = '#circle_' + countryNameLowerCase;
+                if (arcDataDict[countryNameLowerCase]) {
+                    $('#map').data('tableFiltered', circleId);
+                    d3.select(circleId).style('r', '20')
+                        .style('fill','#AA7939');
+                } else {
+                    var tableFiltered = $('#map').data('tableFiltered');
+                    if (tableFiltered) {
+                        d3.select(tableFiltered).style('r', '3')
+                            .style('fill','lightgrey');
+                    }
+
+                }
+            }            
+        });
 
 </script>
 <div id="source">

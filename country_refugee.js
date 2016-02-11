@@ -186,4 +186,9 @@ var arcdata =
 {country:"Yemen",latitude:15.552727,longitude:48.516388,total:5490,targetLocation:[13.3833, 52.5167],sourceLocation:[48.516388,15.552727],gradient: [{offset: "90%",color: "#00338D"}],byTime:[{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"}]},
 {country:"Zambia",latitude:-13.133897,longitude:27.849332,total:194,targetLocation:[13.3833, 52.5167],sourceLocation:[27.849332,-13.133897],gradient: [{offset: "90%",color: "#00338D"}],byTime:[{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"}]},
 {country:"Zimbabwe",latitude:-19.015438,longitude:29.154857,total:1292,targetLocation:[13.3833, 52.5167],sourceLocation:[29.154857,-19.015438],gradient: [{offset: "90%",color: "#00338D"}],byTime:[{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"},{time: "1", color:"grey"}]}
-]
+];
+
+var arcDataDict = {};
+arcdata.forEach(function(val, i) {
+    arcDataDict[val.country.toLowerCase()] = val;
+});
